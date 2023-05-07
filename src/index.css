@@ -1,0 +1,36 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  /* color: #fff; */
+  background-color: #c8c8c8;
+  background: #3a7bd5;
+  background: #3a7bd5;
+  background: #5C258D;
+  background: #232526;
+  background: linear-gradient(135deg, #414345, #232526);
+}
+
+h1 {
+  font-family: comic sans MS;
+  font-weight: 600;
+  font-size: 4rem;
+  text-align: center;
+  color: lightgrey
+}
+
+canvas {
+  display: block;
+  box-shadow: 10px 10px 30px 2px rgba(0, 0, 0, 0.5);
+}
+
+#root {
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
