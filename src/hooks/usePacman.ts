@@ -18,6 +18,8 @@ export const usePacman = () => {
     // 1 - wall
     // 0 - dot
     // 4 - pacman
+    // 5 - empty
+    // 6 - ghost
     const map = [
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
       [1, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -28,7 +30,7 @@ export const usePacman = () => {
       [1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1],
       [1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1],
       [1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1],
-      [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+      [1, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 1],
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     ];
 
@@ -40,6 +42,9 @@ export const usePacman = () => {
     const pacman = gameMap.getPacman(velocity);
     pacman.startKeyDownListener();
 
+    const ghost = gameMap.getGhosts(velocity);
+    console.log('🚀 ~ file: usePacman.ts:46 ~ useEffect ~ ghost:', ghost);
+
     let isTicking = true;
     const animation = () => {
       if (!isTicking) return;
@@ -47,6 +52,7 @@ export const usePacman = () => {
       context.fillRect(0, 0, canvas.width, canvas.height);
       gameMap.draw(context);
       pacman.update(context);
+      ghost.forEach((g) => g.update(context));
       requestAnimationFrame(animation);
     };
     animation();

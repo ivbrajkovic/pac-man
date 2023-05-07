@@ -1,20 +1,33 @@
 import { Dot } from 'class/Dot';
+import { Ghost } from 'class/Ghost';
 import { Pacman } from 'class/Pacman';
 import { Wall } from 'class/Wall';
 import { Direction } from 'type';
 
-type Drawable = {
-  draw: (ctx: CanvasRenderingContext2D) => void;
-};
+enum MapObject {
+  Dot,
+  Wall,
+  Pacman = 4,
+  Empty = 5,
+  Ghost = 6,
+}
 
 export class WallMap {
   private mapWidth = 0;
   private mapHeight = 0;
+  private halfWallSize = 0;
   private map: number[][] = [];
-  private mapArray: Drawable[] = [];
-  private pacmanPosition: { x: number; y: number } = { x: 0, y: 0 };
+  private mapArray: (Wall | Dot)[] = [];
 
-  constructor(public wallSize: number) {}
+  private playerPositions: {
+    type: MapObject.Pacman | MapObject.Ghost;
+    x: number;
+    y: number;
+  }[] = [];
+
+  constructor(public wallSize: number) {
+    this.halfWallSize = wallSize / 2;
+  }
 
   isWall = (x: number, y: number, direction: Direction | null) => {
     if (
@@ -55,11 +68,6 @@ export class WallMap {
         break;
     }
 
-    console.log({
-      column,
-      row,
-    });
-
     return this.map[row][column] === 1;
   };
 
@@ -71,18 +79,18 @@ export class WallMap {
     map.forEach((row, rowIndex) => {
       row.forEach((column, columnIndex) => {
         switch (column) {
-          case 0:
+          case MapObject.Dot:
             this.mapArray.push(
               new Dot(
-                this.wallSize * columnIndex + this.wallSize / 2,
-                this.wallSize * rowIndex + this.wallSize / 2,
+                this.wallSize * columnIndex + this.halfWallSize,
+                this.wallSize * rowIndex + this.halfWallSize,
                 this.wallSize / 10,
                 'white',
               ),
             );
             break;
 
-          case 1:
+          case MapObject.Wall:
             this.mapArray.push(
               new Wall(
                 this.wallSize * columnIndex,
@@ -94,11 +102,13 @@ export class WallMap {
             );
             break;
 
-          case 4:
-            this.pacmanPosition = {
+          case MapObject.Pacman:
+          case MapObject.Ghost:
+            this.playerPositions.push({
+              type: column,
               x: this.wallSize * columnIndex,
               y: this.wallSize * rowIndex,
-            };
+            });
             break;
         }
       });
@@ -112,20 +122,48 @@ export class WallMap {
 
   draw(context: CanvasRenderingContext2D) {
     this.mapArray.forEach((wall) => wall.draw(context));
-
-    // this.map.forEach((wall) => {
-    //   context.strokeStyle = 'yellow';
-    //   context.strokeRect(wall.x, wall.y, 32, 32);
-    // });
   }
 
   getPacman(velocity: number) {
+    const pacmanPosition = this.playerPositions.find(
+      ({ type }) => type === MapObject.Pacman,
+    );
+    if (!pacmanPosition) throw new Error('Pacman not found');
+
     return new Pacman(
-      this.pacmanPosition.x,
-      this.pacmanPosition.y,
+      pacmanPosition.x,
+      pacmanPosition.y,
       this.wallSize,
       velocity,
       this,
     );
+  }
+
+  getGhosts = (velocity: number) =>
+    this.playerPositions
+      .filter(({ type }) => type === MapObject.Ghost)
+      .map(({ x, y }) => new Ghost(x, y, this.wallSize, velocity, 'red', this));
+
+  eatDot(x: number, y: number) {
+    const column = x / this.wallSize;
+    const row = y / this.wallSize;
+
+    if (!Number.isInteger(column) || !Number.isInteger(row)) return;
+    if (this.map[row][column] !== MapObject.Dot) return;
+
+    this.map[row][column] = MapObject.Empty;
+    const dotX = x + this.halfWallSize;
+    const dotY = y + this.halfWallSize;
+
+    const dot = this.mapArray.find(
+      (item) =>
+        item.x === dotX && //
+        item.y === dotY,
+    );
+
+    if (!(dot instanceof Dot)) return false;
+
+    dot.isRender = false;
+    return true;
   }
 }
