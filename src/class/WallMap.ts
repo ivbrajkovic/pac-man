@@ -1,23 +1,16 @@
-import { Dot } from 'class/Dot';
 import { Ghost } from 'class/Ghost';
 import { Pacman } from 'class/Pacman';
+import { Pellet } from 'class/Pellet';
+import { PowerPellet } from 'class/PowerPellet';
 import { Wall } from 'class/Wall';
-import { Direction } from 'type';
-
-enum MapObject {
-  Dot,
-  Wall,
-  Pacman = 4,
-  Empty = 5,
-  Ghost = 6,
-}
+import { Direction, MapObject } from 'type';
 
 export class WallMap {
   private mapWidth = 0;
   private mapHeight = 0;
   private halfWallSize = 0;
   private map: number[][] = [];
-  private mapArray: (Wall | Dot)[] = [];
+  private mapArray: (Wall | Pellet)[] = [];
 
   private playerPositions: {
     type: MapObject.Pacman | MapObject.Ghost;
@@ -79,13 +72,12 @@ export class WallMap {
     map.forEach((row, rowIndex) => {
       row.forEach((column, columnIndex) => {
         switch (column) {
-          case MapObject.Dot:
+          case MapObject.Pellet:
             this.mapArray.push(
-              new Dot(
+              new Pellet(
                 this.wallSize * columnIndex + this.halfWallSize,
                 this.wallSize * rowIndex + this.halfWallSize,
                 this.wallSize / 10,
-                'white',
               ),
             );
             break;
@@ -97,15 +89,29 @@ export class WallMap {
                 this.wallSize * rowIndex,
                 this.wallSize,
                 this.wallSize,
-                'blue',
               ),
             );
             break;
 
-          case MapObject.Pacman:
           case MapObject.Ghost:
+            this.map[rowIndex][columnIndex] = MapObject.PowerPellet;
+            this.mapArray.push(
+              new PowerPellet(
+                this.wallSize * columnIndex + this.halfWallSize,
+                this.wallSize * rowIndex + this.halfWallSize,
+                this.wallSize / 10,
+              ),
+            );
             this.playerPositions.push({
-              type: column,
+              type: MapObject.Ghost,
+              x: this.wallSize * columnIndex,
+              y: this.wallSize * rowIndex,
+            });
+            break;
+
+          case MapObject.Pacman:
+            this.playerPositions.push({
+              type: MapObject.Pacman,
               x: this.wallSize * columnIndex,
               y: this.wallSize * rowIndex,
             });
@@ -149,7 +155,15 @@ export class WallMap {
     const row = y / this.wallSize;
 
     if (!Number.isInteger(column) || !Number.isInteger(row)) return;
-    if (this.map[row][column] !== MapObject.Dot) return;
+    if (
+      this.map[row][column] !== MapObject.Pellet &&
+      this.map[row][column] !== MapObject.PowerPellet
+    )
+      return;
+
+    const pelletType = this.map[row][column] as
+      | MapObject.Pellet
+      | MapObject.PowerPellet;
 
     this.map[row][column] = MapObject.Empty;
     const dotX = x + this.halfWallSize;
@@ -159,11 +173,11 @@ export class WallMap {
       (item) =>
         item.x === dotX && //
         item.y === dotY,
-    );
+    ) as Pellet | undefined;
 
-    if (!(dot instanceof Dot)) return false;
-
-    dot.isRender = false;
-    return true;
+    if (dot) {
+      dot.isRender = false;
+      return pelletType;
+    }
   }
 }

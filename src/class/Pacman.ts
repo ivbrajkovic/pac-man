@@ -1,6 +1,7 @@
+import powerDot from 'assets/sounds/power_dot.wav';
 import waka from 'assets/sounds/waka.wav';
 import { WallMap } from 'class/WallMap';
-import { Direction } from 'type';
+import { Direction, MapObject } from 'type';
 
 enum Rotation {
   Right,
@@ -14,13 +15,17 @@ export class Pacman {
   private direction: Direction | null = null;
   private nextDirection: Direction | null = null;
   private rotation: Rotation = Rotation.Right;
-  private wallSize = 0;
   private halfWallSize = 0;
   private isOpeningMouth = false;
   private mouthAngle = 0.8;
-  // private wakaSound = new Audio('assets/sounds/waka.wav');
-  // private wakaSound = new Audio(waka);
   private wakaSound: HTMLAudioElement;
+  private powerDotSound: HTMLAudioElement;
+
+  onStartMove?: () => void;
+  onEatPellet?: () => void;
+  onEatPowerPellet?: () => void;
+
+  private color = 'yellow';
 
   constructor(
     public x: number,
@@ -28,15 +33,15 @@ export class Pacman {
     public rectSize: number,
     public velocity: number,
     wallMap: WallMap,
-    public color: string = 'yellow',
   ) {
     this.wallMap = wallMap;
-    this.wallSize = wallMap.wallSize;
     this.halfWallSize = wallMap.wallSize / 2;
     this.wakaSound = new Audio(waka);
+    this.powerDotSound = new Audio(powerDot);
   }
 
   #keyDownHandler = ({ key }: KeyboardEvent) => {
+    if (this.direction === null) this.onStartMove?.();
     switch (key) {
       case 'ArrowUp':
         if (this.direction === Direction.Down) this.direction = Direction.Up;
@@ -134,8 +139,16 @@ export class Pacman {
   };
 
   #eatDot = () => {
-    this.wallMap.eatDot(this.x, this.y);
-    // && this.wakaSound.play();
+    const pellet = this.wallMap.eatDot(this.x, this.y);
+    if (pellet === undefined) return;
+    if (pellet === MapObject.PowerPellet) {
+      this.powerDotSound.play();
+      this.onEatPowerPellet?.();
+    }
+    if (pellet === MapObject.Pellet) {
+      this.onEatPellet?.();
+      // this.wakaSound.play();
+    }
   };
 
   update(ctx: CanvasRenderingContext2D) {

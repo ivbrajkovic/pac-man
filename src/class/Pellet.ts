@@ -1,11 +1,7 @@
-export class Dot {
+export class Pellet {
   isRender = true;
-  constructor(
-    public x: number,
-    public y: number,
-    public radius: number,
-    public color: string,
-  ) {}
+  color = 'white';
+  constructor(public x: number, public y: number, public radius: number) {}
   draw(ctx: CanvasRenderingContext2D) {
     if (!this.isRender) return;
     ctx.fillStyle = this.color;

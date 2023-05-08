@@ -1,8 +1,6 @@
 import { useEffect } from 'react';
 
-import { Pacman } from 'class/Pacman';
 import { WallMap } from 'class/WallMap';
-import { useCanvas } from 'hooks/useCanvas';
 
 export const usePacman = () => {
   // const { canvas, context } = useCanvas();
@@ -16,20 +14,21 @@ export const usePacman = () => {
     const rectSize = 32;
 
     // 1 - wall
-    // 0 - dot
+    // 0 - pellet
     // 4 - pacman
     // 5 - empty
     // 6 - ghost
+    // 7 - power pellet
     const map = [
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      [1, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-      [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1],
-      [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1],
-      [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1],
-      [1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1],
-      [1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1],
-      [1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1],
-      [1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1],
+      [1, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 6, 1],
+      [1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1],
+      [1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1],
+      [1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+      [1, 0, 0, 0, 0, 0, 6, 0, 1, 0, 1, 0, 1],
+      [1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1],
+      [1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1],
+      [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
       [1, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 1],
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     ];
@@ -39,11 +38,12 @@ export const usePacman = () => {
     gameMap.setCanvasSize(canvas);
 
     const velocity = 1;
+    const ghosts = gameMap.getGhosts(velocity);
     const pacman = gameMap.getPacman(velocity);
-    pacman.startKeyDownListener();
 
-    const ghost = gameMap.getGhosts(velocity);
-    console.log('🚀 ~ file: usePacman.ts:46 ~ useEffect ~ ghost:', ghost);
+    pacman.startKeyDownListener();
+    pacman.onStartMove = () => ghosts.forEach((g) => g.startMoving());
+    pacman.onEatPowerPellet = () => ghosts.forEach((g) => g.setScared());
 
     let isTicking = true;
     const animation = () => {
@@ -52,7 +52,7 @@ export const usePacman = () => {
       context.fillRect(0, 0, canvas.width, canvas.height);
       gameMap.draw(context);
       pacman.update(context);
-      ghost.forEach((g) => g.update(context));
+      ghosts.forEach((g) => g.update(context));
       requestAnimationFrame(animation);
     };
     animation();
