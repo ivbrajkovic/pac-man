@@ -65,7 +65,9 @@ export class WallMap {
   };
 
   mapInit(map: number[][]) {
-    this.map = map;
+    this.map = map.map((row) => row.slice());
+    this.mapArray = [];
+    this.playerPositions = [];
     this.mapWidth = this.wallSize * map[0].length;
     this.mapHeight = this.wallSize * map.length;
 

@@ -1,5 +1,5 @@
 export class Wall {
-  color = 'blue';
+  color = '#3a7bd5';
   constructor(
     public x: number,
     public y: number,

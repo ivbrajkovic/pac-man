@@ -6,19 +6,23 @@ body {
   margin: 0;
   padding: 0;
   /* color: #fff; */
-  background-color: #c8c8c8;
-  background: #3a7bd5;
-  background: #3a7bd5;
-  background: #5C258D;
-  background: #232526;
+  /* background-color: #c8c8c8; */
+  /* background: #3a7bd5; */
+  /* background: #5C258D; */
+  /* background: #232526; */
   background: linear-gradient(135deg, #414345, #232526);
 }
 
-h1 {
+[data-text] {
+  margin-bottom: 10px;
+}
+
+[data-text] p {
+  margin: 0;
+  padding: 0;
+  margin-bottom: 4px;
   font-family: comic sans MS;
   font-weight: 600;
-  font-size: 4rem;
-  text-align: center;
   color: lightgrey
 }
 

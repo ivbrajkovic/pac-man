@@ -12,6 +12,8 @@ enum Rotation {
 }
 
 export class Pacman extends Player {
+  private originalX: number;
+  private originalY: number;
   private wallMap: WallMap;
   private direction: Direction | null = null;
   private nextDirection: Direction | null = null;
@@ -36,6 +38,8 @@ export class Pacman extends Player {
     wallMap: WallMap,
   ) {
     super(x, y, rectSize);
+    this.originalX = x;
+    this.originalY = y;
     this.wallMap = wallMap;
     this.wakaSound = new Audio(waka);
     this.powerDotSound = new Audio(powerDot);
@@ -67,6 +71,7 @@ export class Pacman extends Player {
     }
   };
   startKeyDownListener() {
+    document.removeEventListener('keydown', this.#keyDownHandler);
     document.addEventListener('keydown', this.#keyDownHandler);
   }
   stopKeyDownListener() {
@@ -163,5 +168,12 @@ export class Pacman extends Player {
       rect.y < y &&
       rect.y + rect.height > y
     );
+  }
+
+  reset() {
+    this.x = this.originalX;
+    this.y = this.originalY;
+    this.direction = null;
+    this.nextDirection = null;
   }
 }
