@@ -94,19 +94,35 @@ export class WallMap {
             break;
 
           case MapObject.Ghost:
-            this.map[rowIndex][columnIndex] = MapObject.PowerPellet;
-            this.mapArray.push(
-              new PowerPellet(
-                this.wallSize * columnIndex + this.halfWallSize,
-                this.wallSize * rowIndex + this.halfWallSize,
-                this.wallSize / 10,
-              ),
-            );
-            this.playerPositions.push({
-              type: MapObject.Ghost,
-              x: this.wallSize * columnIndex,
-              y: this.wallSize * rowIndex,
-            });
+            {
+              const isPowerPellet = Math.random() > 0.5;
+
+              if (isPowerPellet) {
+                this.map[rowIndex][columnIndex] = MapObject.PowerPellet;
+                this.mapArray.push(
+                  new PowerPellet(
+                    this.wallSize * columnIndex + this.halfWallSize,
+                    this.wallSize * rowIndex + this.halfWallSize,
+                    this.wallSize / 10,
+                  ),
+                );
+              } else {
+                this.map[rowIndex][columnIndex] = MapObject.Pellet;
+                this.mapArray.push(
+                  new Pellet(
+                    this.wallSize * columnIndex + this.halfWallSize,
+                    this.wallSize * rowIndex + this.halfWallSize,
+                    this.wallSize / 10,
+                  ),
+                );
+              }
+
+              this.playerPositions.push({
+                type: MapObject.Ghost,
+                x: this.wallSize * columnIndex,
+                y: this.wallSize * rowIndex,
+              });
+            }
             break;
 
           case MapObject.Pacman:

@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
 
+import { Ghost } from 'class/Ghost';
+import { Pacman } from 'class/Pacman';
 import { WallMap } from 'class/WallMap';
 
 export const usePacman = () => {
-  // const { canvas, context } = useCanvas();
-
   useEffect(() => {
     const canvas = document.getElementById('canvas') as HTMLCanvasElement;
     if (!canvas) throw new Error('canvas is null');
@@ -45,6 +45,22 @@ export const usePacman = () => {
     pacman.onStartMove = () => ghosts.forEach((g) => g.startMoving());
     pacman.onEatPowerPellet = () => ghosts.forEach((g) => g.setScared());
 
+    const pacmanGhostCollision = (pacman: Pacman, ghosts: Ghost[]) => {
+      ghosts.forEach((g, i) => {
+        const ghostRect = g.getRect();
+        if (!pacman.intersects(ghostRect)) return;
+
+        if (g.isScared) {
+          g.remove();
+          ghosts.splice(i, 1);
+        } else {
+          isTicking = false;
+          alert('Game Over');
+          window.location.reload();
+        }
+      });
+    };
+
     let isTicking = true;
     const animation = () => {
       if (!isTicking) return;
@@ -53,6 +69,7 @@ export const usePacman = () => {
       gameMap.draw(context);
       pacman.update(context);
       ghosts.forEach((g) => g.update(context));
+      pacmanGhostCollision(pacman, ghosts);
       requestAnimationFrame(animation);
     };
     animation();

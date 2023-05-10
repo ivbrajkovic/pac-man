@@ -1,5 +1,6 @@
 import powerDot from 'assets/sounds/power_dot.wav';
 import waka from 'assets/sounds/waka.wav';
+import { Player, Rect } from 'class/Player';
 import { WallMap } from 'class/WallMap';
 import { Direction, MapObject } from 'type';
 
@@ -10,16 +11,16 @@ enum Rotation {
   Up,
 }
 
-export class Pacman {
+export class Pacman extends Player {
   private wallMap: WallMap;
   private direction: Direction | null = null;
   private nextDirection: Direction | null = null;
   private rotation: Rotation = Rotation.Right;
-  private halfWallSize = 0;
   private isOpeningMouth = false;
   private mouthAngle = 0.8;
   private wakaSound: HTMLAudioElement;
   private powerDotSound: HTMLAudioElement;
+  private radius: number;
 
   onStartMove?: () => void;
   onEatPellet?: () => void;
@@ -34,10 +35,11 @@ export class Pacman {
     public velocity: number,
     wallMap: WallMap,
   ) {
+    super(x, y, rectSize);
     this.wallMap = wallMap;
-    this.halfWallSize = wallMap.wallSize / 2;
     this.wakaSound = new Audio(waka);
     this.powerDotSound = new Audio(powerDot);
+    this.radius = this.rectSize / 2;
   }
 
   #keyDownHandler = ({ key }: KeyboardEvent) => {
@@ -69,6 +71,28 @@ export class Pacman {
   }
   stopKeyDownListener() {
     document.removeEventListener('keydown', this.#keyDownHandler);
+  }
+
+  draw(ctx: CanvasRenderingContext2D) {
+    ctx.save();
+    ctx.translate(this.x + this.radius, this.y + this.radius);
+    ctx.rotate((this.rotation * 90 * Math.PI) / 180);
+
+    ctx.beginPath();
+    ctx.arc(0, 0, this.radius, this.mouthAngle, Math.PI * 2 - this.mouthAngle);
+    ctx.lineTo(0, 0);
+
+    ctx.fillStyle = this.color;
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  update(ctx: CanvasRenderingContext2D) {
+    this.#move();
+    this.#animate();
+    this.#eatDot();
+    this.draw(ctx);
   }
 
   #move = () => {
@@ -106,27 +130,6 @@ export class Pacman {
     }
   };
 
-  #draw(ctx: CanvasRenderingContext2D) {
-    ctx.save();
-    ctx.translate(this.x + this.halfWallSize, this.y + this.halfWallSize);
-    ctx.rotate((this.rotation * 90 * Math.PI) / 180);
-
-    ctx.beginPath();
-    ctx.arc(
-      0,
-      0,
-      this.halfWallSize,
-      this.mouthAngle,
-      Math.PI * 2 - this.mouthAngle,
-    );
-    ctx.lineTo(0, 0);
-
-    ctx.fillStyle = this.color;
-    ctx.fill();
-
-    ctx.restore();
-  }
-
   #animate = () => {
     if (this.isOpeningMouth) this.mouthAngle += 0.05;
     else this.mouthAngle -= 0.05;
@@ -147,14 +150,18 @@ export class Pacman {
     }
     if (pellet === MapObject.Pellet) {
       this.onEatPellet?.();
-      // this.wakaSound.play();
+      this.wakaSound.play();
     }
   };
 
-  update(ctx: CanvasRenderingContext2D) {
-    this.#move();
-    this.#animate();
-    this.#eatDot();
-    this.#draw(ctx);
+  intersects(rect: Rect): boolean {
+    const x = this.x + this.radius;
+    const y = this.y + this.radius;
+    return (
+      rect.x < x &&
+      rect.x + rect.width > x &&
+      rect.y < y &&
+      rect.y + rect.height > y
+    );
   }
 }

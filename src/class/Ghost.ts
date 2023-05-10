@@ -1,6 +1,7 @@
 import ghostImage from 'assets/img/ghost.png';
 import scaredGhostImage from 'assets/img/scaredGhost.png';
 import scaredGhostImage2 from 'assets/img/scaredGhost2.png';
+import { Player } from 'class/Player';
 import { WallMap } from 'class/WallMap';
 import { Direction, getRandomDirection } from 'type';
 import { getRandomNumber } from 'utility';
@@ -10,8 +11,8 @@ const POWER_DOT_EXPIRE_TIME = POWER_DOT_ACTIVE_TIME / 2;
 
 const getRandomTimer = () => getRandomNumber(1000, 5000);
 
-export class Ghost {
-  private isScared = false;
+export class Ghost extends Player {
+  private _isScared = false;
   private isPaused = true;
   private isRender = true;
   private normalGhost: HTMLImageElement | null = null;
@@ -31,10 +32,30 @@ export class Ghost {
     public color: string,
     public wallMap: WallMap,
   ) {
+    super(x, y, size);
     this.#loadImages();
     this.direction = getRandomDirection();
     this.nextDirection = this.direction;
     this.directionChangeTimer = this.#resetDirectionChangeTimer();
+  }
+
+  get isScared() {
+    return this._isScared;
+  }
+
+  setScared() {
+    this._isScared = true;
+    this.currentImage = this.scaredGhost;
+    this.timers.forEach((timer) => clearTimeout(timer));
+    this.timers = [
+      setTimeout(() => {
+        this._isScared = false;
+        this.currentImage = this.normalGhost;
+      }, POWER_DOT_ACTIVE_TIME),
+      setTimeout(() => {
+        this.currentImage = this.scaredGhost2;
+      }, POWER_DOT_EXPIRE_TIME),
+    ];
   }
 
   #randomizeNextDirection = () => (this.nextDirection = getRandomDirection());
@@ -106,22 +127,12 @@ export class Ghost {
     this.draw(ctx);
   }
 
-  setScared() {
-    this.isScared = true;
-    this.currentImage = this.scaredGhost;
-    this.timers.forEach((timer) => clearTimeout(timer));
-    this.timers = [
-      setTimeout(() => {
-        this.isScared = false;
-        this.currentImage = this.normalGhost;
-      }, POWER_DOT_ACTIVE_TIME),
-      setTimeout(() => {
-        this.currentImage = this.scaredGhost2;
-      }, POWER_DOT_EXPIRE_TIME),
-    ];
-  }
-
   startMoving() {
     this.isPaused = false;
+  }
+
+  remove(): void {
+    this.isRender = false;
+    this.timers.forEach((timer) => clearTimeout(timer));
   }
 }
