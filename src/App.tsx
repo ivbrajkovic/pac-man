@@ -21,10 +21,12 @@ function App() {
   useEffect(() => {
     const life = lifeRef.current;
     const score = scoreRef.current;
+    const level = levelRef.current;
     const canvas = canvasRef.current;
-    if (!life || !score || !canvas) return;
+    if (!life || !score || !level || !canvas) return;
 
     life.innerText = PACMAN_LIFE.toString();
+    level.innerText = '1';
     score.innerText = '0';
 
     const game = Game.getGameInstance({
@@ -39,6 +41,9 @@ function App() {
     };
     game.onScoreChange = (value) => {
       score.innerText = value.toString();
+    };
+    game.onLevelChange = (value) => {
+      level.innerText = (++value).toString();
     };
     game.onGameOver = () => {
       openDialog(score.innerText);
