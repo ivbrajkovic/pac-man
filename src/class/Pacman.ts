@@ -96,7 +96,7 @@ export class Pacman extends Player {
   update(ctx: CanvasRenderingContext2D) {
     this.#move();
     this.#animate();
-    this.#eatDot();
+    this.#eatPellet();
     this.draw(ctx);
   }
 
@@ -146,8 +146,8 @@ export class Pacman extends Player {
         : this.isOpeningMouth;
   };
 
-  #eatDot = () => {
-    const pellet = this.wallMap.eatDot(this.x, this.y);
+  #eatPellet = () => {
+    const pellet = this.wallMap.eatPellet(this.x, this.y);
     if (pellet === undefined) return;
     if (pellet === MapObject.PowerPellet) {
       this.powerDotSound.play();

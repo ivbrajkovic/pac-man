@@ -12,6 +12,10 @@ export class WallMap {
   private map: number[][] = [];
   private mapArray: (Wall | Pellet)[] = [];
 
+  pelletCount = 0;
+
+  onEatAllPellets?: () => void;
+
   private playerPositions: {
     type: MapObject.Pacman | MapObject.Ghost;
     x: number;
@@ -75,6 +79,7 @@ export class WallMap {
       row.forEach((column, columnIndex) => {
         switch (column) {
           case MapObject.Pellet:
+            this.pelletCount++;
             this.mapArray.push(
               new Pellet(
                 this.wallSize * columnIndex + this.halfWallSize,
@@ -97,7 +102,7 @@ export class WallMap {
 
           case MapObject.Ghost:
             {
-              const isPowerPellet = Math.random() > 0.5;
+              const isPowerPellet = Math.random() > 0.7;
 
               if (isPowerPellet) {
                 this.map[rowIndex][columnIndex] = MapObject.PowerPellet;
@@ -109,6 +114,7 @@ export class WallMap {
                   ),
                 );
               } else {
+                this.pelletCount++;
                 this.map[rowIndex][columnIndex] = MapObject.Pellet;
                 this.mapArray.push(
                   new Pellet(
@@ -168,7 +174,7 @@ export class WallMap {
       .filter(({ type }) => type === MapObject.Ghost)
       .map(({ x, y }) => new Ghost(x, y, this.wallSize, velocity, 'red', this));
 
-  eatDot(x: number, y: number) {
+  eatPellet(x: number, y: number) {
     const column = x / this.wallSize;
     const row = y / this.wallSize;
 
@@ -187,15 +193,18 @@ export class WallMap {
     const dotX = x + this.halfWallSize;
     const dotY = y + this.halfWallSize;
 
-    const dot = this.mapArray.find(
+    const pellet = this.mapArray.find(
       (item) =>
         item.x === dotX && //
         item.y === dotY,
     ) as Pellet | undefined;
 
-    if (dot) {
-      dot.isRender = false;
-      return pelletType;
-    }
+    if (!pellet) return;
+
+    pellet.isRender = false;
+    if (pelletType === MapObject.Pellet) this.pelletCount--;
+    if (this.pelletCount === 0) this.onEatAllPellets?.();
+
+    return pelletType;
   }
 }

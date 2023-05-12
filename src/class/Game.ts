@@ -15,6 +15,8 @@ type GameProps = {
 export class Game {
   static instance: Game;
 
+  private currentMapIndex = 0;
+
   private isPaused = false;
   private animationFrameId: number | null = null;
   private gameMap: WallMap;
@@ -69,8 +71,9 @@ export class Game {
   };
 
   private initMap() {
-    this.gameMap.mapInit(this.maps[0]);
+    this.gameMap.mapInit(this.maps[this.currentMapIndex]);
     this.gameMap.setCanvasSize(this.canvas);
+    this.gameMap.onEatAllPellets = this.#onEatAllPellets;
   }
 
   private initPlayers() {
@@ -122,6 +125,20 @@ export class Game {
     this.pacman.update(this.context);
     this.ghosts.forEach((g) => g.update(this.context));
     this.pacmanGhostCollision();
+  };
+
+  nextLevel = () => {
+    this.currentMapIndex++;
+    this.onLevelChange?.(this.currentMapIndex);
+    this.initMap();
+    this.initPlayers();
+    this.start();
+  };
+
+  #onEatAllPellets = () => {
+    this.stop();
+    if (this.currentMapIndex < this.maps.length - 1) this.nextLevel();
+    else this.onGameWin?.();
   };
 
   onGameOver?: () => void;

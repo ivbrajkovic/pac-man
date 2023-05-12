@@ -13,6 +13,7 @@ function App() {
   const gameRef = useRef<Game | null>(null);
   const lifeRef = useRef<HTMLParagraphElement>(null);
   const scoreRef = useRef<HTMLParagraphElement>(null);
+  const levelRef = useRef<HTMLParagraphElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const { openDialog } = useGameOverModal();
@@ -59,6 +60,9 @@ function App() {
         </p>
         <p>
           Score: <span ref={scoreRef} />
+        </p>
+        <p>
+          Level: <span ref={levelRef} />
         </p>
       </div>
       <canvas ref={canvasRef}></canvas>
