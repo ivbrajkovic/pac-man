@@ -6,8 +6,8 @@ import { WallMap } from 'class/WallMap';
 import { Direction, getRandomDirection } from 'type';
 import { getRandomNumber } from 'utility';
 
-const POWER_DOT_ACTIVE_TIME = 6000;
-const POWER_DOT_EXPIRE_TIME = POWER_DOT_ACTIVE_TIME / 2;
+const SCARED_ACTIVE_TIME = 4000;
+const SCARED_EXPIRE_TIME = SCARED_ACTIVE_TIME / 2;
 
 const getRandomTimer = () => getRandomNumber(1000, 5000);
 
@@ -51,10 +51,10 @@ export class Ghost extends Player {
       setTimeout(() => {
         this._isScared = false;
         this.currentImage = this.normalGhost;
-      }, POWER_DOT_ACTIVE_TIME),
+      }, SCARED_ACTIVE_TIME),
       setTimeout(() => {
         this.currentImage = this.scaredGhost2;
-      }, POWER_DOT_EXPIRE_TIME),
+      }, SCARED_EXPIRE_TIME),
     ];
   }
 
