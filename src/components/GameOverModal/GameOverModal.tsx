@@ -39,6 +39,7 @@ const GameOverModal: FC<GameOverModalProps> = (props) => {
     >
       <h1>Game Over</h1>
       <p>Your score: 0</p>
+      <p>Best score: 0</p>
       <p>Press Enter to restart</p>
     </dialog>
   );

@@ -11,6 +11,10 @@ enum Rotation {
   Up,
 }
 
+const KILLED_TIMEOUT = 2000;
+const RESETTING_COLOR_INTERVAL = 100;
+const colors = ['yellow', 'transparent'];
+
 export class Pacman extends Player {
   private originalX: number;
   private originalY: number;
@@ -28,7 +32,12 @@ export class Pacman extends Player {
   onEatPellet?: () => void;
   onEatPowerPellet?: () => void;
 
-  private color = 'yellow';
+  private color = colors[0];
+
+  #isResetting = false;
+  get isResetting() {
+    return this.#isResetting;
+  }
 
   constructor(
     public x: number,
@@ -171,9 +180,20 @@ export class Pacman extends Player {
   }
 
   reset() {
+    this.#isResetting = true;
     this.x = this.originalX;
     this.y = this.originalY;
     this.direction = null;
     this.nextDirection = null;
+
+    const interval = setInterval(() => {
+      this.color = colors[(colors.indexOf(this.color) + 1) % colors.length];
+    }, RESETTING_COLOR_INTERVAL);
+
+    setTimeout(() => {
+      this.#isResetting = false;
+      clearInterval(interval);
+      this.color = colors[0];
+    }, KILLED_TIMEOUT);
   }
 }

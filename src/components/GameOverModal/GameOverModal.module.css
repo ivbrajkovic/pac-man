@@ -27,10 +27,8 @@
   text-align: center;
 }
 
-.game-over-modal p+p {
+.game-over-modal p:last-child {
   margin-top: 16px;
-  color: lime;
-
 }
 
 @keyframes example {

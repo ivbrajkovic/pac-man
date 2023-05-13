@@ -46,7 +46,10 @@ function App() {
       level.innerText = (++value).toString();
     };
     game.onGameOver = () => {
-      openDialog(score.innerText);
+      openDialog(false, score.innerText);
+    };
+    game.onGameWin = () => {
+      openDialog(true, score.innerText);
     };
 
     gameRef.current = game;

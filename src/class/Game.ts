@@ -4,6 +4,8 @@ import { Ghost } from 'class/Ghost';
 import { Pacman } from 'class/Pacman';
 import { WallMap } from 'class/WallMap';
 
+const STARTING_LEVEL = 0;
+
 type GameProps = {
   canvas: HTMLCanvasElement;
   rectSize: number;
@@ -15,7 +17,7 @@ type GameProps = {
 export class Game {
   static instance: Game;
 
-  private currentMapIndex = 0;
+  private currentMapIndex = STARTING_LEVEL;
 
   private isPaused = false;
   private animationFrameId: number | null = null;
@@ -89,6 +91,8 @@ export class Game {
   }
 
   private eatPacman() {
+    if (this.pacman.isResetting) return;
+
     this.pacmanLife--;
     this.onPacmanLifeChange?.(this.pacmanLife);
 

@@ -102,7 +102,7 @@ export class WallMap {
 
           case MapObject.Ghost:
             {
-              const isPowerPellet = Math.random() > 0.7;
+              const isPowerPellet = Math.random() > 0.75;
 
               if (isPowerPellet) {
                 this.map[rowIndex][columnIndex] = MapObject.PowerPellet;
