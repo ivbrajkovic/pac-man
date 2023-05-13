@@ -1,5 +1,6 @@
 import eatGhostSound from 'assets/sounds/eat_ghost.wav';
 import gameOverSound from 'assets/sounds/gameOver.wav';
+import gameWinSound from 'assets/sounds/gameWin.wav';
 import { Ghost } from 'class/Ghost';
 import { Pacman } from 'class/Pacman';
 import { WallMap } from 'class/WallMap';
@@ -32,6 +33,7 @@ export class Game {
   private velocity: number;
   private maps: number[][][];
   private gameOverSound: HTMLAudioElement;
+  private gameWinSound: HTMLAudioElement;
   private eatGhostSound: HTMLAudioElement;
 
   static getGameInstance(props: GameProps) {
@@ -55,6 +57,7 @@ export class Game {
     this.pacmanLife = pacmanLife;
     this.originalPacmanLife = pacmanLife;
     this.gameOverSound = new Audio(gameOverSound);
+    this.gameWinSound = new Audio(gameWinSound);
     this.eatGhostSound = new Audio(eatGhostSound);
     this.init();
   }
@@ -142,7 +145,10 @@ export class Game {
   #onEatAllPellets = () => {
     this.stop();
     if (this.currentMapIndex < this.maps.length - 1) this.nextLevel();
-    else this.onGameWin?.();
+    else {
+      this.gameWinSound.play();
+      this.onGameWin?.();
+    }
   };
 
   onGameOver?: () => void;
